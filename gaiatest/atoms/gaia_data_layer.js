@@ -416,4 +416,26 @@ var GaiaDataLayer = {
       });
     });
   }
+  changeOrientation: function(){
+      if (arguments[0] === arguments[1]) {
+          marionetteScriptFinished();
+      }
+      else {
+          var expected = arguments[1];
+          window.screen.onmozorientationchange = function(e) {
+              console.log("Received 'onmozorientationchange' event.");
+              waitFor(
+                  function() {
+                      window.screen.onmozorientationchange = null;
+                      marionetteScriptFinished();
+                  },
+                  function() {
+                      return window.screen.mozOrientation === expected;
+                  }
+              );
+          };
+          console.log("Locking emulator orientation to '" + arguments[1] + "'.");
+          window.screen.mozLockOrientation(arguments[1]);
+      }
+  }
 };

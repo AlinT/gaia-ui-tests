@@ -59,3 +59,8 @@ class FullscreenImage(Base):
         self.marionette.tap(self.marionette.find_element(*self._edit_photo_locator))
         from gaiatest.apps.gallery.regions.edit_photo import EditPhoto
         return EditPhoto(self.marionette)
+
+    def tap_image(self):
+        self.marionette.tap(self.marionette.find_element(*self._current_image_locator))
+        print self.marionette.page_source
+        #self.wait_for_element_not_displayed(*self._photos_toolbar_locator)

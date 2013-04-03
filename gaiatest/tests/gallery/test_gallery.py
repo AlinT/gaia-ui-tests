@@ -4,6 +4,7 @@
 
 from gaiatest import GaiaTestCase
 from gaiatest.apps.gallery.app import Gallery
+from gaiatest.apps.gallery.regions.fullscreen_image import FullscreenImage
 
 
 class TestGallery(GaiaTestCase):
@@ -26,7 +27,11 @@ class TestGallery(GaiaTestCase):
         self.assertIsNotNone(image.current_image_source)
         self.assertTrue(image.is_photo_toolbar_displayed)
 
-        # TODO
-        # Add steps to view picture full screen
+        # Tap first image to open full screen view.
+        image.tap_image()
+
+        #self.assertIsNotNone(image.current_image_source)
+        self.wait_for_condition(lambda s: self.marionette.find_element('id', 'fullscreen-view').get_attribute('class') == 'toolbarhidden')
+
         # TODO
         # Repeat test with landscape orientation
