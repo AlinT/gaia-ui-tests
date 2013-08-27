@@ -4,12 +4,11 @@
 
 from gaiatest import GaiaTestCase
 from gaiatest.apps.browser.app import Browser
+from gaiatest.apps.homescreen.app import Homescreen
 
 
 class TestBrowserBookmark(GaiaTestCase):
 
-    _homescreen_frame_locator = ('css selector', 'div.homescreen > iframe')
-    _homescreen_icon_locator = ('css selector', 'li.icon[aria-label="%s"]')
     _bookmark_added = False
 
     def setUp(self):
@@ -19,8 +18,6 @@ class TestBrowserBookmark(GaiaTestCase):
         import time
         curr_time = repr(time.time()).replace('.', '')
         self.bookmark_title = 'gaia%s' % curr_time[10:]
-        self._homescreen_icon_locator = (self._homescreen_icon_locator[0],
-                                         self._homescreen_icon_locator[1] % self.bookmark_title)
 
     def test_browser_bookmark(self):
         # https://github.com/mozilla/gaia-ui-tests/issues/452
@@ -36,28 +33,10 @@ class TestBrowserBookmark(GaiaTestCase):
         browser.tap_add_bookmark_to_home_screen_dialog_button()
 
         # Switch to Home Screen to look for bookmark
-        self.marionette.switch_to_frame()
+        homescreen = Homescreen(self.marionette)
         self.marionette.execute_script("window.wrappedJSObject.dispatchEvent(new Event('home'));")
-        self.marionette.switch_to_frame(self.marionette.find_element(*self._homescreen_frame_locator))
+        homescreen.switch_to_homescreen_frame()
 
-        # Wait for Gaia to insert the element into the page
-        self.wait_for_element_present(*self._homescreen_icon_locator)
-
-        # check whether bookmark was added
-        while self._homescreen_has_more_pages:
-            self._go_to_next_page()
-            if self.is_element_displayed(*self._homescreen_icon_locator):
-                self._bookmark_added = True
-                break
+        self._bookmark_added = homescreen.is_app_installed(self.bookmark_title)
 
         self.assertTrue(self._bookmark_added, 'The bookmark %s was not found to be installed on the home screen.' % self.bookmark_title)
-
-    def _go_to_next_page(self):
-        self.marionette.execute_script('window.wrappedJSObject.GridManager.goToNextPage()')
-
-    @property
-    def _homescreen_has_more_pages(self):
-        # the naming of this could be more concise when it's in an app object!
-        return self.marionette.execute_script("""
-        var pageHelper = window.wrappedJSObject.GridManager.pageHelper;
-        return pageHelper.getCurrentPageNumber() < (pageHelper.getTotalPagesNumber() - 1);""")

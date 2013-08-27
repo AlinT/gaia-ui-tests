@@ -3,14 +3,15 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import datetime
+from marionette.by import By
 
 from gaiatest import GaiaTestCase
 
 
 class TestCalendar(GaiaTestCase):
 
-    _current_month_year_locator = ('id', 'current-month-year')
-    _selected_day_title_locator = ('id', 'selected-day-title')
+    _current_month_year_locator = (By.ID, 'current-month-year')
+    _current_month_day_locator = (By.ID, 'months-day-view')
 
     def setUp(self):
         GaiaTestCase.setUp(self)
@@ -39,14 +40,14 @@ class TestCalendar(GaiaTestCase):
         self.wait_for_element_displayed(
             *self._current_month_year_locator)
         self.wait_for_element_displayed(
-            *self._selected_day_title_locator)
+            *self._current_month_day_locator)
 
-        # find the default selected day and month title
-        selected_day = self.marionette.find_element(
-            *self._selected_day_title_locator)
+        # find the default current day and month title
+        current_date = self.marionette.find_element(
+            *self._current_month_day_locator).get_attribute('data-date')
         month_title = self.marionette.find_element(
             *self._current_month_year_locator)
 
-        # validate month title and selected day aligns with today's date
+        # validate month title and current day aligns with today's date
         self.assertEquals(month_title.text, self.today.strftime('%B %Y'))
-        self.assertEquals(selected_day.text, self.today.strftime('%A %-d %B %Y'))
+        self.assertIn(self.today.strftime('%a %b %-d %Y'), current_date)

@@ -11,6 +11,7 @@ import traceback
 
 from marionette import MarionetteTestCase
 from marionette import Marionette
+from marionette.by import By
 from marionette.errors import NoSuchElementException
 from marionette.errors import ElementNotVisibleException
 from marionette.errors import TimeoutException
@@ -316,9 +317,9 @@ class GaiaData(object):
 
 class GaiaDevice(object):
 
-    def __init__(self, marionette, testvars):
+    def __init__(self, marionette, testvars=None):
         self.marionette = marionette
-        self.testvars = testvars
+        self.testvars = testvars or {}
 
     @property
     def manager(self):
@@ -386,7 +387,7 @@ class GaiaDevice(object):
             # launch the gecko instance attached to marionette
             self.marionette.instance.start()
         elif self.is_android_build:
-            self.manager.shellCheckOutput(['su', '-c', 'start', 'b2g'])
+            self.manager.shellCheckOutput(['start', 'b2g'])
         else:
             raise Exception('Unable to start B2G')
         self.marionette.wait_for_port()
@@ -405,7 +406,7 @@ window.addEventListener('mozbrowserloadend', function loaded(aEvent) {
             # close the gecko instance attached to marionette
             self.marionette.instance.close()
         elif self.is_android_build:
-            self.manager.shellCheckOutput(['su', '-c', 'stop', 'b2g'])
+            self.manager.shellCheckOutput(['stop', 'b2g'])
         else:
             raise Exception('Unable to stop B2G')
         self.marionette.client.close()
@@ -510,7 +511,7 @@ class GaiaTestCase(MarionetteTestCase):
         self.marionette.execute_script("window.wrappedJSObject.dispatchEvent(new Event('home'));")
 
     def install_marketplace(self):
-        _yes_button_locator = ('id', 'app-install-install-button')
+        _yes_button_locator = (By.ID, 'app-install-install-button')
         mk = {"name": "Marketplace Dev",
               "manifest": "https://marketplace-dev.allizom.org/manifest.webapp ",
               }
